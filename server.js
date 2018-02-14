@@ -1,11 +1,12 @@
 const express = require('express'),
     mongoose = require('mongoose'),
     bodyParser = require('body-parser'),
-    app = express()
+    app = express(),
+    path = require('path')
 
 app.use(bodyParser.json())
 app.use(bodyParser())
-app.use(express.static('Images'))
+app.use(express.static(__dirname + '/Images/'))
 
 mongoose.connect('mongodb://admin:admin@cluster0-shard-00-00-gvabo.mongodb.net:27017,cluster0-shard-00-01-gvabo.mongodb.net:27017,cluster0-shard-00-02-gvabo.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',(err,res) => {
     if(!err){
@@ -59,8 +60,6 @@ app.post('/register',(req,res) => {
             })
         }
     })
-
-
 })
 
 //select data from database
@@ -112,14 +111,15 @@ app.post('/delete',(req,res) => {
 })
 
 var multer = require('multer')
-
+var ext;
+var filaeName;
 //photo upload
 var storage =   multer.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, './Images');
+        callback(null,'./Images');
     },
     filename: function (req, file, callback) {
-        var ext;
+
         switch (file.mimetype) {
             case 'image/png':
                 ext = 'png';
@@ -128,18 +128,17 @@ var storage =   multer.diskStorage({
                 ext = 'jpg';
                 break;
         }
-
-        callback(null, `${file.originalname}_${Date.now()}.${ext}`);
+    fileName = `${file.originalname}_${Date.now()}.${ext}`
+        callback(null, fileName);
     }
 });
 var upload = multer({ storage : storage});
 
+//Image save here in database
 app.post('/api/photo',upload.single('userPhoto'),function(req,res){
 
-    console.log(req.file.path)
-
     var myquery = {'email' : email};
-    var newvalues = {$set : {'profilepic' : req.file.path}};
+    var newvalues = {$set : {'profilepic' : fileName}};
 
     User.updateOne(myquery, newvalues, (err,ress) => {
         if(!err) {
