@@ -151,8 +151,8 @@ app.post('/api/photo',upload.single('userPhoto'),function(req,res){
 });
 
 
-
-app.listen(8552,() => {
+var port = process.env.PORT || 8552
+app.listen(port,() => {
     console.log('server started')
 })
 
