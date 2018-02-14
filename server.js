@@ -5,6 +5,7 @@ const express = require('express'),
 
 app.use(bodyParser.json())
 app.use(bodyParser())
+app.use(express.static('Images'))
 
 mongoose.connect('mongodb://admin:admin@cluster0-shard-00-00-gvabo.mongodb.net:27017,cluster0-shard-00-01-gvabo.mongodb.net:27017,cluster0-shard-00-02-gvabo.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',(err,res) => {
     if(!err){
@@ -135,19 +136,19 @@ var upload = multer({ storage : storage});
 
 app.post('/api/photo',upload.single('userPhoto'),function(req,res){
 
-    console.log(email)
+    console.log(req.file.path)
 
-    var myquery = {'email' : email};
-    var newvalues = {$set : {'profilepic' : req.file.path}};
-
-    User.updateOne(myquery, newvalues, (err,ress) => {
-        if(!err) {
-            return res.json({"msg" : ress})
-        }
-        else{
-            return res.json({"error" : "could not update"})
-        }
-    })
+    // var myquery = {'email' : email};
+    // var newvalues = {$set : {'profilepic' : req.file.path}};
+    //
+    // User.updateOne(myquery, newvalues, (err,ress) => {
+    //     if(!err) {
+    //         return res.json({"msg" : ress})
+    //     }
+    //     else{
+    //         return res.json({"error" : "could not update"})
+    //     }
+    // })
 });
 
 
