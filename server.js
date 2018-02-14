@@ -138,17 +138,17 @@ app.post('/api/photo',upload.single('userPhoto'),function(req,res){
 
     console.log(req.file.path)
 
-    // var myquery = {'email' : email};
-    // var newvalues = {$set : {'profilepic' : req.file.path}};
-    //
-    // User.updateOne(myquery, newvalues, (err,ress) => {
-    //     if(!err) {
-    //         return res.json({"msg" : ress})
-    //     }
-    //     else{
-    //         return res.json({"error" : "could not update"})
-    //     }
-    // })
+    var myquery = {'email' : email};
+    var newvalues = {$set : {'profilepic' : req.file.path}};
+
+    User.updateOne(myquery, newvalues, (err,ress) => {
+        if(!err) {
+            return res.json({"msg" : ress})
+        }
+        else{
+            return res.json({"error" : "could not update"})
+        }
+    })
 });
 
 
