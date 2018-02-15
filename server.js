@@ -2,13 +2,17 @@ const express = require('express'),
     mongoose = require('mongoose'),
     bodyParser = require('body-parser'),
     app = express(),
-    path = require('path')
+    path = require('path'),
+    multer = require('multer')
+
+var ext;
+var filaeName;
 
 app.use(bodyParser.json())
 app.use(bodyParser())
 app.use(express.static(__dirname + '/Images/'))
 
-mongoose.connect('mongodb://admin:admin@cluster0-shard-00-00-gvabo.mongodb.net:27017,cluster0-shard-00-01-gvabo.mongodb.net:27017,cluster0-shard-00-02-gvabo.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',(err,res) => {
+mongoose.connect('mongodb://localhost:27017/users',(err,res) => {
     if(!err){
         return console.log("database connection successfully")
     }
@@ -29,7 +33,16 @@ let User = mongoose.model('User', userSchema)
 
 //Simple get request
 app.get('/',(req,res) => {
-    return res.json({"msg" : "Success"})
+    User.find({},(err,ress) => {
+        if(!err){
+            res.json({"msg" : ress})
+        }
+        else
+        {
+            res.json({"error" : err})
+        }
+
+    })
 })
 
 //insert data into database
@@ -62,12 +75,32 @@ app.post('/register',(req,res) => {
     })
 })
 
+//searching data in mongodb
+app.post('/search',(req,res) => {
+   let searchStr = req.body.email;
+   console.log({'email' : {$regex : searchStr}})
+    User.find({'email' : {$regex : req.body.email}},(err,ress) => {
+        if(!err)
+        {
+            console.log(ress)
+            return res.json({"msg" : ress})
+        }
+        else{
+            return res.json({"error" : err})
+
+        }
+
+    })
+})
+
 //select data from database
 app.post('/login',(req,res) => {
+    console.log("Hello")
     User.findOne({'email' : req.body.email, 'password' : req.body.password},(err,ress) => {
         if(!err && ress != "null"){
             if(ress != null)
             {
+                console.log(ress.email)
                 return res.json({"msg" : ress})
             }else{
                 return res.json({"error" : "Please register first"})
@@ -110,9 +143,7 @@ app.post('/delete',(req,res) => {
     })
 })
 
-var multer = require('multer')
-var ext;
-var filaeName;
+
 //photo upload
 var storage =   multer.diskStorage({
     destination: function (req, file, callback) {
